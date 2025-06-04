@@ -1,4 +1,6 @@
-function WeatherInformations({ weather }) {  // Corrigido para "weather"
+import PropTypes from 'prop-types';
+
+function WeatherInformations({ weather }) {
     console.log(weather);
 
     return (
@@ -17,5 +19,22 @@ function WeatherInformations({ weather }) {  // Corrigido para "weather"
         </div>
     );
 }
-//Código funcionando finalmente
+
+WeatherInformations.propTypes = {
+    weather: PropTypes.shape({
+        weather: PropTypes.arrayOf(
+            PropTypes.shape({
+                icon: PropTypes.string.isRequired,
+                description: PropTypes.string.isRequired,
+            })
+        ),
+        main: PropTypes.shape({
+            temp: PropTypes.number.isRequired,
+            feels_like: PropTypes.number.isRequired,
+            humidity: PropTypes.number.isRequired,
+            pressure: PropTypes.number.isRequired,
+        }),
+    }).isRequired,
+};
+
 export default WeatherInformations;
