@@ -7,46 +7,37 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
-  transition: background 1.5s ease;
+  transition: background 2s ease;
 }
 
 /* ===== THEME BACKGROUNDS ===== */
 .app-container.default {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
-
 .app-container.hot {
   background: linear-gradient(135deg, #ff512f 0%, #f09819 100%);
 }
-
 .app-container.warm {
   background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
 }
-
 .app-container.cool {
   background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
 }
-
 .app-container.cold {
   background: linear-gradient(135deg, #283e51 0%, #4b79a1 100%);
 }
-
 .app-container.rainy {
   background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
 }
-
 .app-container.snowy {
   background: linear-gradient(135deg, #e6e9f0 0%, #cfd9df 50%, #e2ebf0 100%);
 }
-
 .app-container.cloudy {
   background: linear-gradient(135deg, #616161 0%, #9bc5c3 100%);
 }
-
 .app-container.stormy {
   background: linear-gradient(135deg, #0c0c1d 0%, #1a1a2e 50%, #16213e 100%);
 }
-
 .app-container.misty {
   background: linear-gradient(135deg, #606c88 0%, #3f4c6b 100%);
 }
@@ -64,7 +55,7 @@
     rgba(255, 255, 255, 0.06) 0%,
     transparent 70%
   );
-  animation: bg-pulse 10s ease-in-out infinite;
+  animation: bg-pulse 12s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
 }
@@ -73,11 +64,11 @@
   0%,
   100% {
     transform: scale(1) rotate(0deg);
-    opacity: 0.4;
+    opacity: 0.3;
   }
   50% {
     transform: scale(1.1) rotate(3deg);
-    opacity: 0.7;
+    opacity: 0.6;
   }
 }
 
@@ -96,18 +87,15 @@
   margin-bottom: 2rem;
   color: rgba(255, 255, 255, 0.7);
 }
-
 .snowy .date-time-info {
   color: rgba(44, 62, 80, 0.5);
 }
-
 .current-date {
   font-size: 0.85rem;
   font-weight: 300;
   text-transform: capitalize;
   letter-spacing: 0.5px;
 }
-
 .current-time {
   font-size: 2.6rem;
   font-weight: 300;
@@ -124,7 +112,6 @@
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-
 .snowy .app-title {
   color: rgba(44, 62, 80, 0.6);
 }
@@ -134,13 +121,11 @@
   position: relative;
   margin-bottom: 1.5rem;
 }
-
 .search-container {
   position: relative;
   display: flex;
   align-items: center;
 }
-
 .search-input {
   width: 100%;
   padding: 1rem 3.5rem 1rem 1.4rem;
@@ -157,27 +142,22 @@
   transition: all 0.3s ease;
   letter-spacing: 0.3px;
 }
-
 .search-input::placeholder {
   color: rgba(255, 255, 255, 0.4);
   font-weight: 300;
 }
-
 .search-input:focus {
   border-color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.15);
 }
-
 .snowy .search-input {
   border-color: rgba(0, 0, 0, 0.1);
   background: rgba(255, 255, 255, 0.4);
   color: #2c3e50;
 }
-
 .snowy .search-input::placeholder {
   color: rgba(0, 0, 0, 0.3);
 }
-
 .search-button {
   position: absolute;
   right: 8px;
@@ -196,26 +176,21 @@
   transition: all 0.2s ease;
   padding: 0;
 }
-
 .search-button svg {
   width: 16px;
   height: 16px;
 }
-
 .search-button:hover {
   background: rgba(255, 255, 255, 0.25);
   color: white;
 }
-
 .search-button:active {
   transform: translateY(-50%) scale(0.95);
 }
-
 .snowy .search-button {
   background: rgba(44, 62, 80, 0.1);
   color: rgba(44, 62, 80, 0.6);
 }
-
 .snowy .search-button:hover {
   background: rgba(44, 62, 80, 0.15);
   color: #2c3e50;
@@ -236,25 +211,22 @@
   padding: 6px;
   z-index: 100;
   overflow: hidden;
-  animation: dropdown-enter 0.2s ease;
+  animation: dropdown-enter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .snowy .autocomplete-dropdown {
   background: rgba(255, 255, 255, 0.85);
   border-color: rgba(0, 0, 0, 0.08);
 }
-
 @keyframes dropdown-enter {
   0% {
     opacity: 0;
-    transform: translateY(-6px);
+    transform: translateY(-8px) scale(0.98);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
-
 .autocomplete-item {
   display: flex;
   align-items: center;
@@ -264,51 +236,42 @@
   cursor: pointer;
   transition: background 0.15s ease;
 }
-
 .autocomplete-item:hover {
   background: rgba(255, 255, 255, 0.1);
 }
-
 .snowy .autocomplete-item:hover {
   background: rgba(0, 0, 0, 0.05);
 }
-
 .autocomplete-icon {
   width: 16px;
   height: 16px;
   color: rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
 }
-
 .snowy .autocomplete-icon {
   color: rgba(44, 62, 80, 0.4);
 }
-
 .autocomplete-text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
 }
-
 .autocomplete-name {
   font-size: 0.9rem;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.2;
 }
-
 .snowy .autocomplete-name {
   color: #2c3e50;
 }
-
 .autocomplete-detail {
   font-size: 0.75rem;
   font-weight: 300;
   color: rgba(255, 255, 255, 0.4);
   line-height: 1.2;
 }
-
 .snowy .autocomplete-detail {
   color: rgba(44, 62, 80, 0.45);
 }
@@ -316,18 +279,18 @@
 /* ===== NEARBY CITIES ===== */
 .nearby-section {
   margin-bottom: 1rem;
-  animation: fade-in 0.5s ease;
+  animation: fade-in 0.6s ease;
 }
-
 @keyframes fade-in {
   0% {
     opacity: 0;
+    transform: translateY(6px);
   }
   100% {
     opacity: 1;
+    transform: translateY(0);
   }
 }
-
 .nearby-label {
   font-size: 0.7rem;
   font-weight: 400;
@@ -336,18 +299,15 @@
   letter-spacing: 1.5px;
   margin-bottom: 0.75rem;
 }
-
 .snowy .nearby-label {
   color: rgba(44, 62, 80, 0.4);
 }
-
 .nearby-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
 }
-
 .nearby-chip {
   display: flex;
   align-items: center;
@@ -364,34 +324,28 @@
   transition: all 0.2s ease;
   white-space: nowrap;
 }
-
 .nearby-chip:hover {
   background: rgba(255, 255, 255, 0.18);
   color: white;
   transform: translateY(-1px);
 }
-
 .nearby-chip:active {
   transform: translateY(0);
 }
-
 .snowy .nearby-chip {
   border-color: rgba(0, 0, 0, 0.08);
   background: rgba(255, 255, 255, 0.4);
   color: rgba(44, 62, 80, 0.7);
 }
-
 .snowy .nearby-chip:hover {
   background: rgba(255, 255, 255, 0.6);
   color: #2c3e50;
 }
-
 .nearby-chip-icon {
   width: 24px;
   height: 24px;
   margin: -4px -2px;
 }
-
 .nearby-chip-temp {
   font-weight: 600;
   font-size: 0.75rem;
@@ -399,7 +353,9 @@
   margin-left: 2px;
 }
 
-/* ===== WEATHER PARTICLES ===== */
+/* ================================================================
+   WEATHER PARTICLES — smooth, layered animations
+   ================================================================ */
 .weather-particles {
   position: fixed;
   top: 0;
@@ -409,55 +365,212 @@
   pointer-events: none;
   z-index: 5;
   overflow: hidden;
+  animation: particles-appear 1.2s ease;
 }
 
+@keyframes particles-appear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ---------- RAIN ---------- */
 .raindrop {
   position: absolute;
-  top: -20px;
-  width: 1.5px;
-  height: 16px;
-  background: linear-gradient(transparent, rgba(174, 194, 224, 0.4));
-  border-radius: 0 0 5px 5px;
+  top: -30px;
+  border-radius: 0 0 4px 4px;
   animation: rain-fall linear infinite;
+}
+
+/* 3 depth layers — near is wider/faster, far is thinner/slower */
+.rain-near {
+  width: 2.5px;
+  height: 22px;
+  background: linear-gradient(transparent, rgba(180, 210, 240, 0.55));
+  animation-duration: 0.55s;
+}
+.rain-mid {
+  width: 1.8px;
+  height: 16px;
+  background: linear-gradient(transparent, rgba(160, 195, 230, 0.35));
+  animation-duration: 0.7s;
+}
+.rain-far {
+  width: 1px;
+  height: 12px;
+  background: linear-gradient(transparent, rgba(140, 175, 215, 0.2));
+  animation-duration: 0.9s;
 }
 
 @keyframes rain-fall {
   0% {
-    transform: translateY(-10vh);
+    transform: translateY(-5vh) translateX(0);
+    opacity: 0;
+  }
+  8% {
     opacity: 1;
   }
+  85% {
+    opacity: 0.6;
+  }
   100% {
-    transform: translateY(110vh);
-    opacity: 0.2;
+    transform: translateY(108vh) translateX(-18px);
+    opacity: 0;
   }
 }
 
+/* ---------- SNOW ---------- */
 .snowflake {
   position: absolute;
-  top: -10px;
+  top: -12px;
   background: white;
   border-radius: 50%;
-  opacity: 0.7;
   animation: snow-fall linear infinite;
+}
+
+.snow-lg {
+  width: 10px;
+  height: 10px;
+  opacity: 0.85;
+  box-shadow: 0 0 8px 1px rgba(255, 255, 255, 0.4);
+  animation-duration: 8s;
+}
+.snow-md {
+  width: 6px;
+  height: 6px;
+  opacity: 0.65;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+  animation-duration: 10s;
+}
+.snow-sm {
+  width: 3px;
+  height: 3px;
+  opacity: 0.45;
+  animation-duration: 13s;
 }
 
 @keyframes snow-fall {
   0% {
-    transform: translateY(-5vh) translateX(0) rotate(0deg);
-    opacity: 0.8;
+    transform: translateY(-4vh) translateX(0) rotate(0deg);
+    opacity: 0;
   }
-  33% {
-    transform: translateY(33vh) translateX(12px) rotate(120deg);
+  6% {
+    opacity: 1;
   }
-  66% {
-    transform: translateY(66vh) translateX(-8px) rotate(240deg);
+  20% {
+    transform: translateY(18vh) translateX(18px) rotate(72deg);
+  }
+  40% {
+    transform: translateY(38vh) translateX(-12px) rotate(144deg);
+  }
+  60% {
+    transform: translateY(58vh) translateX(14px) rotate(216deg);
+  }
+  80% {
+    transform: translateY(78vh) translateX(-8px) rotate(288deg);
+  }
+  92% {
+    opacity: 0.4;
   }
   100% {
-    transform: translateY(110vh) translateX(4px) rotate(360deg);
-    opacity: 0.3;
+    transform: translateY(108vh) translateX(6px) rotate(360deg);
+    opacity: 0;
   }
 }
 
+/* ---------- CLOUDS ---------- */
+.cloud-blob {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 50%;
+  filter: blur(50px);
+  animation: cloud-drift linear infinite;
+}
+
+@keyframes cloud-drift {
+  0% {
+    transform: translateX(-250px);
+  }
+  100% {
+    transform: translateX(calc(100vw + 250px));
+  }
+}
+
+/* ---------- MIST / FOG ---------- */
+.mist-layer {
+  position: absolute;
+  width: 250%;
+  height: 35%;
+  left: -75%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.07) 20%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.07) 80%,
+    transparent 100%
+  );
+  filter: blur(20px);
+}
+.mist-1 {
+  top: 15%;
+  animation: mist-drift 18s ease-in-out infinite alternate;
+  opacity: 0.7;
+}
+.mist-2 {
+  top: 45%;
+  animation: mist-drift 24s ease-in-out infinite alternate-reverse;
+  opacity: 0.5;
+  animation-delay: -6s;
+}
+.mist-3 {
+  top: 70%;
+  animation: mist-drift 30s ease-in-out infinite alternate;
+  opacity: 0.35;
+  animation-delay: -12s;
+}
+
+@keyframes mist-drift {
+  0% {
+    transform: translateX(-15%);
+  }
+  100% {
+    transform: translateX(15%);
+  }
+}
+
+/* ---------- AMBIENT FLOATING ORBS ---------- */
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 70%
+  );
+  animation: orb-float ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes orb-float {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(15px, -20px) scale(1.08);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-10px, 10px) scale(0.95);
+    opacity: 0.25;
+  }
+}
+
+/* ---------- LIGHTNING (STORMY) ---------- */
 .app-container.stormy::after {
   content: '';
   position: absolute;
@@ -467,55 +580,39 @@
   height: 100%;
   background: white;
   opacity: 0;
-  animation: lightning 7s infinite;
+  animation: lightning 8s infinite;
   pointer-events: none;
   z-index: 2;
 }
 
 @keyframes lightning {
   0%,
-  94%,
-  96.5%,
+  92%,
+  95.5%,
   100% {
     opacity: 0;
   }
-  95%,
-  96% {
-    opacity: 0.15;
+  93%,
+  95% {
+    opacity: 0.12;
   }
 }
 
-.cloud {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  filter: blur(40px);
-  animation: cloud-float linear infinite;
-}
-
-@keyframes cloud-float {
-  0% {
-    transform: translateX(-200px);
-  }
-  100% {
-    transform: translateX(calc(100vw + 200px));
-  }
-}
-
+/* ---------- SUN GLOW (HOT) ---------- */
 .app-container.hot::after {
   content: '';
   position: absolute;
-  top: -25%;
-  right: -10%;
-  width: 350px;
-  height: 350px;
+  top: -20%;
+  right: -8%;
+  width: 380px;
+  height: 380px;
   background: radial-gradient(
     circle,
-    rgba(255, 200, 50, 0.15) 0%,
+    rgba(255, 200, 50, 0.18) 0%,
     transparent 70%
   );
   border-radius: 50%;
-  animation: sun-glow 5s ease-in-out infinite;
+  animation: sun-glow 6s ease-in-out infinite;
   pointer-events: none;
   z-index: 1;
 }
@@ -527,8 +624,8 @@
     opacity: 0.5;
   }
   50% {
-    transform: scale(1.15);
-    opacity: 0.8;
+    transform: scale(1.18);
+    opacity: 0.85;
   }
 }
 
@@ -545,7 +642,6 @@
   border: 1px solid rgba(255, 100, 100, 0.2);
   animation: shake 0.4s ease;
 }
-
 @keyframes shake {
   0%,
   100% {
@@ -565,7 +661,6 @@
   justify-content: center;
   padding: 2rem;
 }
-
 .loading-spinner .spinner {
   width: 32px;
   height: 32px;
@@ -574,12 +669,10 @@
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
-
 .snowy .loading-spinner .spinner {
   border-color: rgba(44, 62, 80, 0.1);
   border-top-color: rgba(44, 62, 80, 0.5);
 }
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -591,11 +684,9 @@
   .main-content {
     padding: 1.5rem 1rem;
   }
-
   .current-time {
     font-size: 2rem;
   }
-
   .app-title {
     font-size: 1.1rem;
   }

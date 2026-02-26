@@ -203,47 +203,88 @@ function App() {
 
   return (
     <div className={`app-container ${theme}`}>
-      <div className="weather-particles">
-        {(theme === 'rainy' || theme === 'stormy') &&
-          Array.from({ length: 50 }).map((_, i) => (
-            <div
-              key={i}
-              className="raindrop"
-              style={{
-                left: `${(i * 2.1) % 100}%`,
-                animationDelay: `${(i * 0.13) % 2}s`,
-                animationDuration: `${0.5 + (i % 5) * 0.1}s`,
-              }}
-            />
-          ))}
-        {theme === 'snowy' &&
-          Array.from({ length: 60 }).map((_, i) => (
-            <div
-              key={i}
-              className="snowflake"
-              style={{
-                left: `${(i * 1.7) % 100}%`,
-                animationDelay: `${(i * 0.3) % 5}s`,
-                animationDuration: `${3 + (i % 5)}s`,
-                width: `${4 + (i % 4) * 2}px`,
-                height: `${4 + (i % 4) * 2}px`,
-              }}
-            />
-          ))}
-        {theme === 'cloudy' &&
-          Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="cloud"
-              style={{
-                top: `${10 + i * 18}%`,
-                width: `${150 + (i % 3) * 80}px`,
-                height: `${80 + (i % 3) * 40}px`,
-                animationDuration: `${20 + i * 8}s`,
-                animationDelay: `${i * 4}s`,
-              }}
-            />
-          ))}
+      {/* Weather-specific particle layers — key forces re-mount + fade on theme change */}
+      <div className="weather-particles" key={theme}>
+        {/* Multi-layer rain */}
+        {(theme === 'rainy' || theme === 'stormy') && (
+          <>
+            {Array.from({ length: 70 }).map((_, i) => (
+              <div
+                key={`r${i}`}
+                className={`raindrop ${i < 25 ? 'rain-near' : i < 50 ? 'rain-mid' : 'rain-far'}`}
+                style={{
+                  left: `${(i * 1.47) % 100}%`,
+                  animationDelay: `${(i * 0.09) % 1.8}s`,
+                }}
+              />
+            ))}
+          </>
+        )}
+
+        {/* Multi-size snow */}
+        {theme === 'snowy' && (
+          <>
+            {Array.from({ length: 65 }).map((_, i) => (
+              <div
+                key={`s${i}`}
+                className={`snowflake ${i % 3 === 0 ? 'snow-lg' : i % 3 === 1 ? 'snow-md' : 'snow-sm'}`}
+                style={{
+                  left: `${(i * 1.6) % 100}%`,
+                  animationDelay: `${(i * 0.25) % 7}s`,
+                }}
+              />
+            ))}
+          </>
+        )}
+
+        {/* Drifting cloud blobs */}
+        {theme === 'cloudy' && (
+          <>
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div
+                key={`c${i}`}
+                className="cloud-blob"
+                style={{
+                  top: `${5 + i * 13}%`,
+                  width: `${180 + (i % 3) * 100}px`,
+                  height: `${90 + (i % 3) * 50}px`,
+                  animationDuration: `${30 + i * 8}s`,
+                  animationDelay: `${-i * 6}s`,
+                  opacity: 0.04 + (i % 3) * 0.025,
+                }}
+              />
+            ))}
+          </>
+        )}
+
+        {/* Mist / fog layers */}
+        {theme === 'misty' && (
+          <>
+            <div className="mist-layer mist-1" />
+            <div className="mist-layer mist-2" />
+            <div className="mist-layer mist-3" />
+          </>
+        )}
+
+        {/* Ambient floating orbs — adds atmosphere to every weather */}
+        {weather && (
+          <>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={`o${i}`}
+                className="ambient-orb"
+                style={{
+                  left: `${8 + (i * 19) % 80}%`,
+                  top: `${8 + (i * 22) % 75}%`,
+                  width: `${80 + (i % 3) * 50}px`,
+                  height: `${80 + (i % 3) * 50}px`,
+                  animationDelay: `${i * 3}s`,
+                  animationDuration: `${14 + (i % 4) * 5}s`,
+                }}
+              />
+            ))}
+          </>
+        )}
       </div>
 
       <div className="main-content">
