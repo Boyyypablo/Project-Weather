@@ -1,0 +1,392 @@
+/* ===== APP CONTAINER ===== */
+.app-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: background 1.5s ease;
+}
+
+/* ===== THEME BACKGROUNDS ===== */
+.app-container.default {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.app-container.hot {
+  background: linear-gradient(135deg, #ff512f 0%, #f09819 100%);
+}
+
+.app-container.warm {
+  background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+}
+
+.app-container.cool {
+  background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+}
+
+.app-container.cold {
+  background: linear-gradient(135deg, #283e51 0%, #4b79a1 100%);
+}
+
+.app-container.rainy {
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+}
+
+.app-container.snowy {
+  background: linear-gradient(135deg, #e6e9f0 0%, #cfd9df 50%, #e2ebf0 100%);
+}
+
+.app-container.cloudy {
+  background: linear-gradient(135deg, #616161 0%, #9bc5c3 100%);
+}
+
+.app-container.stormy {
+  background: linear-gradient(135deg, #0c0c1d 0%, #1a1a2e 50%, #16213e 100%);
+}
+
+.app-container.misty {
+  background: linear-gradient(135deg, #606c88 0%, #3f4c6b 100%);
+}
+
+/* Ambient glow animation */
+.app-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+  animation: bg-pulse 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes bg-pulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+  50% { transform: scale(1.15) rotate(5deg); opacity: 0.9; }
+}
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 2rem;
+  width: 100%;
+  max-width: 520px;
+}
+
+/* ===== DATE TIME ===== */
+.date-time-info {
+  margin-bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.snowy .date-time-info {
+  color: rgba(44, 62, 80, 0.7);
+}
+
+.current-date {
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.current-time {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1.2;
+}
+
+/* ===== TITLE ===== */
+.app-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.5px;
+}
+
+.snowy .app-title {
+  color: #2c3e50;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+}
+
+/* ===== SEARCH ===== */
+.search-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.9rem 1.2rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.search-input:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.snowy .search-input {
+  border-color: rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.5);
+  color: #2c3e50;
+}
+
+.snowy .search-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.search-button {
+  padding: 0.9rem 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.search-button:active {
+  transform: translateY(0);
+}
+
+.search-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.snowy .search-button {
+  background: rgba(44, 62, 80, 0.15);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #2c3e50;
+}
+
+.snowy .search-button:hover {
+  background: rgba(44, 62, 80, 0.25);
+}
+
+/* ===== WEATHER PARTICLES ===== */
+.weather-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+
+/* Rain */
+.raindrop {
+  position: absolute;
+  top: -20px;
+  width: 2px;
+  height: 18px;
+  background: linear-gradient(transparent, rgba(174, 194, 224, 0.5));
+  border-radius: 0 0 5px 5px;
+  animation: rain-fall linear infinite;
+}
+
+@keyframes rain-fall {
+  0% {
+    transform: translateY(-10vh);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh);
+    opacity: 0.3;
+  }
+}
+
+/* Snow */
+.snowflake {
+  position: absolute;
+  top: -10px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.85;
+  animation: snow-fall linear infinite;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+}
+
+@keyframes snow-fall {
+  0% {
+    transform: translateY(-5vh) translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  33% {
+    transform: translateY(33vh) translateX(15px) rotate(120deg);
+  }
+  66% {
+    transform: translateY(66vh) translateX(-10px) rotate(240deg);
+  }
+  100% {
+    transform: translateY(110vh) translateX(5px) rotate(360deg);
+    opacity: 0.4;
+  }
+}
+
+/* Lightning for stormy */
+.app-container.stormy::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  opacity: 0;
+  animation: lightning 6s infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes lightning {
+  0%, 94%, 96.5%, 100% { opacity: 0; }
+  95%, 96% { opacity: 0.25; }
+}
+
+/* Floating clouds for cloudy theme */
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  filter: blur(30px);
+  animation: cloud-float linear infinite;
+}
+
+@keyframes cloud-float {
+  0% {
+    transform: translateX(-200px);
+  }
+  100% {
+    transform: translateX(calc(100vw + 200px));
+  }
+}
+
+/* Sun rays for hot theme */
+.app-container.hot::after {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -15%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 200, 50, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: sun-glow 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes sun-glow {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* ===== ERROR MESSAGE ===== */
+.error-message {
+  color: rgba(255, 120, 120, 0.95);
+  background: rgba(255, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* ===== LOADING ===== */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.loading-spinner .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.snowy .loading-spinner .spinner {
+  border-color: rgba(44, 62, 80, 0.15);
+  border-top-color: #2c3e50;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 520px) {
+  .main-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .current-time {
+    font-size: 2rem;
+  }
+
+  .app-title {
+    font-size: 1.4rem;
+  }
+
+  .search-container {
+    flex-direction: column;
+  }
+
+  .search-button {
+    justify-content: center;
+  }
+}
