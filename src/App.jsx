@@ -1,7 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
 import WeatherInformations from './components/WeatherInformations/WeatherInformations';
+import { isRequestCanceled, searchPlaces } from './services/places';
+import {
+  geolocationPermissionState,
+  haversineKm,
+  locateByNetwork,
+  locationFailureMessage,
+  networkLocationHint,
+  readCurrentPosition,
+} from './utils/geo';
+import { formatPlaceHint } from './utils/placeLabel';
+import { rankPlaces } from './utils/rankPlaces';
+import { groupForecastByDay } from './utils/forecast';
 
 const API_KEY = '71bdaaed1643cbb91fadf3068faf912c';
 
@@ -24,51 +36,217 @@ function App() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [nearbyCities, setNearbyCities] = useState([]);
   const [nearbyLabel, setNearbyLabel] = useState('Cidades populares');
+  const [locationStatus, setLocationStatus] = useState('idle');
+  const [usingDeviceLocation, setUsingDeviceLocation] = useState(false);
+  const [locationSource, setLocationSource] = useState(null);
+  const [locationBlock, setLocationBlock] = useState('');
+  const [forecast, setForecast] = useState([]);
 
   const inputRef = useRef();
   const debounceRef = useRef(null);
   const searchWrapperRef = useRef();
+  const placesAbortRef = useRef(null);
+  const requestIdRef = useRef(0);
+  const userCoordsRef = useRef(null);
+  const locationRequestRef = useRef(0);
+  const userCountryRef = useRef('');
+  const userEditedRef = useRef(false);
+  const suggestionQueryRef = useRef('');
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setNearbyCities(POPULAR_CITIES);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const resp = await axios.get(
-            `https://api.openweathermap.org/data/2.5/find?lat=${latitude}&lon=${longitude}&cnt=6&appid=${API_KEY}&lang=pt_br&units=metric`
-          );
-          if (resp.data.list?.length > 0) {
-            setNearbyCities(
-              resp.data.list.map((c) => ({
-                name: c.name,
-                country: c.sys.country,
-                lat: c.coord.lat,
-                lon: c.coord.lon,
-                temp: Math.round(c.main.temp),
-                icon: c.weather[0].icon,
-              }))
-            );
-            setNearbyLabel('Próximo de você');
-          } else {
-            setNearbyCities(POPULAR_CITIES);
-          }
-        } catch {
-          setNearbyCities(POPULAR_CITIES);
-        }
-      },
-      () => {
-        setNearbyCities(POPULAR_CITIES);
+  const showPopularCities = useCallback(() => {
+    setNearbyCities(POPULAR_CITIES);
+    setNearbyLabel('Cidades populares');
+  }, []);
+
+  const fetchWeatherByCoords = useCallback(async (lat, lon) => {
+    const resp = await axios.get(
+      'https://api.openweathermap.org/data/2.5/weather',
+      {
+        params: {
+          lat,
+          lon,
+          appid: API_KEY,
+          lang: 'pt_br',
+          units: 'metric',
+        },
       }
     );
+    return resp.data;
+  }, []);
+
+  const fetchForecastByCoords = useCallback(async (lat, lon) => {
+    const resp = await axios.get(
+      'https://api.openweathermap.org/data/2.5/forecast',
+      {
+        params: {
+          lat,
+          lon,
+          appid: API_KEY,
+          lang: 'pt_br',
+          units: 'metric',
+        },
+      }
+    );
+    return groupForecastByDay(
+      resp.data.list ?? [],
+      resp.data.city?.timezone ?? 0
+    );
+  }, []);
+
+  const searchByCoords = useCallback(
+    async (lat, lon, { fromDevice = false, replaceInput = false, source = 'device' } = {}) => {
+      setLoading(true);
+      setError('');
+      setShowSuggestions(false);
+      if (!fromDevice) {
+        setUsingDeviceLocation(false);
+        setLocationSource(null);
+      } else {
+        setUsingDeviceLocation(true);
+        setLocationSource(source);
+      }
+
+      try {
+        const [data, days] = await Promise.all([
+          fetchWeatherByCoords(lat, lon),
+          fetchForecastByCoords(lat, lon).catch(() => []),
+        ]);
+        if (data.sys?.country) userCountryRef.current = data.sys.country;
+        setWeather(data);
+        setForecast(days);
+        if (fromDevice) {
+          setUsingDeviceLocation(true);
+          if (replaceInput || !userEditedRef.current) {
+            setInputValue(data.name ?? '');
+            if (replaceInput) userEditedRef.current = false;
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao buscar informações:', err);
+        setError('Não foi possível buscar os dados meteorológicos.');
+        setWeather(undefined);
+        setForecast([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchWeatherByCoords, fetchForecastByCoords]
+  );
+
+  const requestLocation = useCallback(
+    ({ replaceInput = false } = {}) => {
+      const requestId = ++locationRequestRef.current;
+      setError('');
+      setLocationStatus('pending');
+      if (replaceInput) window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      const cached = userCoordsRef.current;
+      if (cached) {
+        searchByCoords(cached.lat, cached.lon, {
+          fromDevice: true,
+          replaceInput,
+          source: cached.source ?? 'device',
+        });
+      } else {
+        setLoading(true);
+      }
+
+      readCurrentPosition()
+        .then((position) => {
+          if (requestId !== locationRequestRef.current) return null;
+          const coords = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          };
+          const changed = !cached || haversineKm(cached, coords) > 0.3;
+          userCoordsRef.current = { ...coords, source: 'device' };
+          setLocationBlock('');
+          setLocationSource('device');
+          setLocationStatus('granted');
+          if (!changed) return null;
+          return searchByCoords(coords.lat, coords.lon, {
+            fromDevice: true,
+            replaceInput,
+            source: 'device',
+          });
+        })
+        .catch(async () => {
+          if (requestId !== locationRequestRef.current) return;
+          if (cached) {
+            setLocationStatus('granted');
+            return;
+          }
+
+          try {
+            const coords = await locateByNetwork();
+            if (requestId !== locationRequestRef.current) return;
+            const permission = await geolocationPermissionState();
+            if (requestId !== locationRequestRef.current) return;
+            userCoordsRef.current = { ...coords, source: 'network' };
+            setLocationBlock(
+              permission === 'denied' || permission === 'granted'
+                ? permission
+                : ''
+            );
+            setLocationStatus('granted');
+            return searchByCoords(coords.lat, coords.lon, {
+              fromDevice: true,
+              replaceInput,
+              source: 'network',
+            });
+          } catch {
+            if (requestId !== locationRequestRef.current) return;
+            setLoading(false);
+            setLocationStatus('denied');
+            showPopularCities();
+            const permission = await geolocationPermissionState();
+            if (requestId !== locationRequestRef.current) return;
+            setError(locationFailureMessage(permission));
+          }
+        });
+    },
+    [searchByCoords, showPopularCities]
+  );
+
+  useEffect(() => {
+    if (!navigator.permissions?.query) return undefined;
+    let permissionStatus;
+    let active = true;
+
+    navigator.permissions
+      .query({ name: 'geolocation' })
+      .then((status) => {
+        if (!active) return;
+        permissionStatus = status;
+        status.onchange = () => {
+          if (status.state === 'granted') {
+            userCoordsRef.current = null;
+            requestLocation({ replaceInput: true });
+          }
+        };
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+      if (permissionStatus) permissionStatus.onchange = null;
+    };
+  }, [requestLocation]);
+
+  useEffect(() => {
+    requestLocation();
+  }, [requestLocation]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      placesAbortRef.current?.abort();
+    };
   }, []);
 
   useEffect(() => {
@@ -86,78 +264,119 @@ function App() {
 
   function handleInputChange(e) {
     const value = e.target.value;
+    userEditedRef.current = true;
     setInputValue(value);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (value.trim().length < 2) {
+      suggestionQueryRef.current = '';
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
 
     debounceRef.current = setTimeout(async () => {
+      const query = value.trim();
+      placesAbortRef.current?.abort();
+      const controller = new AbortController();
+      placesAbortRef.current = controller;
+      const requestId = ++requestIdRef.current;
+
       try {
-        const resp = await axios.get(
-          `https://api.openweathermap.org/geo/1.0/direct?q=${value.trim()}&limit=5&appid=${API_KEY}`
-        );
-        setSuggestions(resp.data);
-        setShowSuggestions(resp.data.length > 0);
-      } catch {
+        const places = await searchPlaces(query, {
+          signal: controller.signal,
+          coords: userCoordsRef.current,
+          apiKey: API_KEY,
+        });
+        if (requestId !== requestIdRef.current) return;
+
+        const ranked = rankPlaces(places, {
+          query,
+          coords: userCoordsRef.current,
+          preferredCountry: userCountryRef.current,
+        });
+        suggestionQueryRef.current = query;
+        setSuggestions(ranked);
+        setShowSuggestions(ranked.length > 0);
+      } catch (err) {
+        if (isRequestCanceled(err) || requestId !== requestIdRef.current) return;
         setSuggestions([]);
         setShowSuggestions(false);
       }
     }, 300);
   }
 
-  async function searchByCoords(lat, lon) {
-    setLoading(true);
-    setError('');
-    setShowSuggestions(false);
-    try {
-      const resp = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&lang=pt_br&units=metric`
-      );
-      setWeather(resp.data);
-    } catch (err) {
-      console.error('Erro ao buscar informações:', err);
-      setError('Não foi possível buscar os dados meteorológicos.');
-      setWeather(undefined);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function searchCity() {
     const city = inputValue.trim();
     if (!city) return;
 
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setShowSuggestions(false);
+    userEditedRef.current = true;
+    setUsingDeviceLocation(false);
+
+    if (suggestions.length > 0 && suggestionQueryRef.current === city) {
+      const best = suggestions[0];
+      setInputValue(best.name);
+      setSuggestions([]);
+      searchByCoords(best.lat, best.lon);
+      return;
+    }
+
     setLoading(true);
     setError('');
-    setShowSuggestions(false);
 
     try {
-      const resp = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&lang=pt_br&units=metric`
-      );
-      setWeather(resp.data);
+      const places = await searchPlaces(city, {
+        coords: userCoordsRef.current,
+        apiKey: API_KEY,
+      });
+      const [best] = rankPlaces(places, {
+        query: city,
+        coords: userCoordsRef.current,
+        preferredCountry: userCountryRef.current,
+        limit: 1,
+      });
+
+      if (!best) {
+        setError('Cidade não encontrada. Tente novamente.');
+        setWeather(undefined);
+        setForecast([]);
+        return;
+      }
+
+      const [data, days] = await Promise.all([
+        fetchWeatherByCoords(best.lat, best.lon),
+        fetchForecastByCoords(best.lat, best.lon).catch(() => []),
+      ]);
+      if (data.sys?.country) userCountryRef.current = data.sys.country;
+      setInputValue(best.name);
+      setSuggestions([]);
+      setWeather(data);
+      setForecast(days);
     } catch (err) {
       console.error('Erro ao buscar informações da cidade:', err);
       setError('Cidade não encontrada. Tente novamente.');
       setWeather(undefined);
+      setForecast([]);
     } finally {
       setLoading(false);
     }
   }
 
-  function selectSuggestion(s) {
-    setInputValue(s.name);
+  function selectSuggestion(place) {
+    userEditedRef.current = true;
+    setUsingDeviceLocation(false);
+    setInputValue(place.name);
     setSuggestions([]);
     setShowSuggestions(false);
-    searchByCoords(s.lat, s.lon);
+    searchByCoords(place.lat, place.lon);
   }
 
   function selectNearbyCity(city) {
+    userEditedRef.current = true;
+    setUsingDeviceLocation(false);
     setInputValue(city.name);
     searchByCoords(city.lat, city.lon);
   }
@@ -185,6 +404,7 @@ function App() {
       condition.includes('haze')
     )
       return 'misty';
+    if (weather.weather[0].icon?.endsWith('n')) return 'night';
     if (temp >= 35) return 'hot';
     if (temp >= 22) return 'warm';
     if (temp >= 10) return 'cool';
@@ -202,7 +422,11 @@ function App() {
   const timeString = currentTime.toLocaleTimeString('pt-BR');
 
   return (
-    <div className={`app-container ${theme}`}>
+    <div
+      className={`app-container ${theme}${
+        theme === 'hot' || theme === 'warm' ? ' sunny' : ''
+      }`}
+    >
       {/* Weather-specific particle layers — key forces re-mount + fade on theme change */}
       <div className="weather-particles" key={theme}>
         {/* Multi-layer rain */}
@@ -266,8 +490,28 @@ function App() {
           </>
         )}
 
-        {/* Ambient floating orbs — adds atmosphere to every weather */}
-        {weather && (
+        {theme === 'night' &&
+          Array.from({ length: 28 }).map((_, i) => (
+            <span
+              key={`star${i}`}
+              className="night-star"
+              style={{
+                left: `${(i * 13.7) % 100}%`,
+                top: `${(i * 19.3) % 78}%`,
+                animationDelay: `${(i * 0.27) % 3}s`,
+                width: i % 5 === 0 ? 3 : 2,
+                height: i % 5 === 0 ? 3 : 2,
+              }}
+            />
+          ))}
+
+        {(theme === 'hot' || theme === 'warm') && <div className="day-sun" />}
+
+        {(theme === 'hot' ||
+          theme === 'warm' ||
+          theme === 'cool' ||
+          theme === 'cold' ||
+          theme === 'default') && (
           <>
             {Array.from({ length: 5 }).map((_, i) => (
               <div
@@ -352,8 +596,7 @@ function App() {
                   <div className="autocomplete-text">
                     <span className="autocomplete-name">{s.name}</span>
                     <span className="autocomplete-detail">
-                      {s.state ? `${s.state}, ` : ''}
-                      {s.country}
+                      {formatPlaceHint(s)}
                     </span>
                   </div>
                 </li>
@@ -361,6 +604,30 @@ function App() {
             </ul>
           )}
         </div>
+
+        <button
+          type="button"
+          className="location-button"
+          onClick={() => requestLocation({ replaceInput: true })}
+        >
+          {locationStatus === 'pending' && !userCoordsRef.current
+            ? 'Obtendo sua localização...'
+            : 'Usar minha localização'}
+        </button>
+
+        {usingDeviceLocation && weather && !loading && (
+          <p className="location-hint">
+            {locationSource === 'network'
+              ? networkLocationHint(locationBlock)
+              : 'Mostrando o tempo da sua localização'}
+          </p>
+        )}
+
+        {locationStatus === 'denied' && !weather && (
+          <p className="location-hint">
+            Sem acesso à localização. Busque pelo nome ou escolha uma cidade.
+          </p>
+        )}
 
         {nearbyCities.length > 0 && !weather && (
           <div className="nearby-section">
@@ -397,7 +664,9 @@ function App() {
           </div>
         )}
 
-        {weather && !loading && <WeatherInformations weather={weather} />}
+        {weather && !loading && (
+          <WeatherInformations weather={weather} forecast={forecast} />
+        )}
       </div>
     </div>
   );
